@@ -1,0 +1,22 @@
+name: Release
+
+# Push a tag like v1.2 to publish a release; the app's "Check for updates" installs it.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: VERSION="${GITHUB_REF_NAME#v}" ./build.sh
+      - run: ditto -c -k --keepParent build/ClaudeBar.app build/ClaudeBar.zip
+      - run: gh release create "$GITHUB_REF_NAME" build/ClaudeBar.zip --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
