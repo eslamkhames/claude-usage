@@ -15,10 +15,14 @@ if [[ -n "${VERSION:-}" ]]; then
   /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $(git rev-list --count HEAD 2>/dev/null || echo 1)" "$APP/Contents/Info.plist"
 fi
 
-swiftc -O -parse-as-library -swift-version 5 \
-  -target "$(uname -m)-apple-macos14.0" \
-  -sdk "$(xcrun --show-sdk-path --sdk macosx)" \
-  Sources/*.swift -o "$APP/Contents/MacOS/ClaudeBar"
+for arch in arm64 x86_64; do
+  swiftc -O -parse-as-library -swift-version 5 \
+    -target "$arch-apple-macos14.0" \
+    -sdk "$(xcrun --show-sdk-path --sdk macosx)" \
+    Sources/*.swift -o "build/ClaudeBar-$arch"
+done
+lipo -create build/ClaudeBar-arm64 build/ClaudeBar-x86_64 -output "$APP/Contents/MacOS/ClaudeBar"
+rm build/ClaudeBar-arm64 build/ClaudeBar-x86_64
 
 codesign --force --sign - "$APP"
 echo "Built $APP"

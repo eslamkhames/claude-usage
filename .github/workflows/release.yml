@@ -17,6 +17,6 @@ jobs:
           fetch-depth: 0
       - run: VERSION="${GITHUB_REF_NAME#v}" ./build.sh
       - run: ditto -c -k --keepParent build/ClaudeBar.app build/ClaudeBar.zip
-      - run: gh release create "$GITHUB_REF_NAME" build/ClaudeBar.zip --generate-notes
+      - run: gh release create "$GITHUB_REF_NAME" build/ClaudeBar.zip --generate-notes --notes-file .github/release-notes.md
         env:
           GH_TOKEN: ${{ github.token }}
